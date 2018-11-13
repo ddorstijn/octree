@@ -1,2 +1,4 @@
+SOURCES = src/octree.c src/unordered_map.c
+
 default:
-	gcc -Wall -shared octree.c unordered_map.c -o octree.dll
+	gcc -Wall -shared $(SOURCES) -o octree.dll
