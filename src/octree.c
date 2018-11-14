@@ -3,20 +3,21 @@
 #include <assert.h>
 #include <limits.h>
 
+
 void
 oct_octree_build(OctreeContainer* octree, float** object_positions,
                  size_t object_count)
 {
     for (size_t i = 0; i < object_count; i++) {
 
-        uint8_t child = 0;
-        child |= object_positions[i][0] < octree->position[0] ? 0 : 0b001;
-        child |= object_positions[i][1] < octree->position[1] ? 0 : 0b010;
-        child |= object_positions[i][2] < octree->position[2] ? 0 : 0b100;
+        uint8_t child_loc = 0;
+        child_loc |= object_positions[i][0] < octree->position[0] ? 0 : 0b001;
+        child_loc |= object_positions[i][1] < octree->position[1] ? 0 : 0b010;
+        child_loc |= object_positions[i][2] < octree->position[2] ? 0 : 0b100;
 
-        if ((octree->root_node->type != NodeType.LEAF) &&
-            ((octree->root_node->data.child_exists & child) == child)) {
-            oct_node_split(child, object);
+        if (octree->root_node->type != LEAF_NODE &&
+            (octree->root_node->data.child_exists & child_loc) == child_loc) {
+            oct_node_split(child_loc, i);
         }
     }
 }
@@ -40,24 +41,36 @@ oct_octree_init(float* position)
     octree->position = position;
     octree->total_node_count = 0;
     octree->nodes = unordered_map_alloc(10000000, 0, hash_func, equals_func);
-    octree->root_node = oct_node_init(0, ULLONG_MAX, NodeType.LEAF);
+    octree->root_node = oct_node_init(0, ULLONG_MAX, LEAF_NODE);
 
     return octree;
 }
 
 OctreeNode*
-oct_node_init(uint64_t location_code, uint64_t object_index, NodeType type)
+oct_node_init(OctreeContainer* octree, uint64_t location_code, uint64_t object_index, uint8_t type)
 {
     OctreeNode* node = malloc(sizeof *node);
     node->location_code = location_code;
-    if (type == NodeType.INNER) {
+    if (type == INNER_NODE) {
         node->data.child_exists = 0b00;
     } else {
         node->data.object_index = object_index;
     }
-    node->type = (uint8_t)type;
+    node->type = type;
+
+    unordered_map_put(octree->nodes, location_code, node);
 
     return node;
+}
+
+OctreeNode* 
+oct_node_split(OctreeContainer* octree, uint8_t location_code, uint64_t object_index)
+{
+    OctreeNode* node = oct_node_init(location_code, object_index, LEAF_NODE);
+    OctreeNode* parent = oct_node_get_parent(octree, node);
+    if (parent->type == LEAF_NODE) {
+        oct_node_split(octree, parent->location_code, )
+    }
 }
 
 size_t

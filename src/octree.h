@@ -6,15 +6,13 @@
 
 #define OCTREE_API __declspec(dllexport)
 
+#define INNER_NODE 0
+#define LEAF_NODE 1
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-    enum NodeType
-    {
-        INNER = 0,
-        LEAF = 1
-    };
 
     typedef struct _OctreeNode
     {
@@ -50,8 +48,12 @@ extern "C"
 
     OCTREE_API OctreeContainer* oct_octree_init(float* position);
 
-    OCTREE_API OctreeNode* oct_node_init(uint64_t object_index,
-                                         uint64_t location_code);
+    OCTREE_API OctreeNode* oct_node_init(OctreeContainer* octree,
+                                         uint64_t object_index,
+                                         uint64_t location_code,
+                                         uint8_t type);
+
+    OCTREE_API OctreeNode* oct_node_split(OctreeContainer* octree, uint8_t location_code, uint64_t object_index);
 
     OCTREE_API size_t oct_node_get_position(OctreeNode* node);
 
