@@ -1,0 +1,34 @@
+oct_octree_init(position, size):
+	Alloc new octree
+	Give octree size and position
+	Init unordered map
+	Create root_node with oct_leaf_node_init()
+	Set root node location to 1
+	Return octree
+
+oct_octree_build(octree, list_objects):
+	Check every node starting from the top with oct_find_leaf_node()
+	If leaf node is reached split leaf node with oct_split_leaf_node()
+
+oct_find_leaf_node(octree, node):
+	Check if node is leaf node
+	If not then check for the location of the correct child node.
+	Check if this child node exists. If not make it. 
+	Return leaf_node
+
+oct_node_get_position(node):
+	Check the node position based on the location code
+	Return the position 
+
+oct_leaf_node_init(octree, parent_node, child_loc, object_index):
+	Allocate new leaf node
+	Set its base to the correct type 
+	Set the location to the loc_code of the parent bitshifted by 3 and or'd with child_loc
+	Set object_index
+
+oct_split_leaf_node():
+	Change leaf node to inner node
+	Add a child to new inner node for the object the previous leaf node had
+	Add a child to new inner node for the new object
+
+
