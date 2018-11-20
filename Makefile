@@ -1,12 +1,14 @@
-SOURCES = src/octree.c src/unordered_map.c
+CC = gcc
 
-default:
-	gcc -shared -fPIC -o liboctree.so $(SOURCES)
+src = $(wildcard src/*.c)
+obj = $(src:.c=.o)
 
-testno:
-	gcc -g -std=c11 src/main.c $(SOURCES) -o test_nodll 
+LDFLAGS =
+CFLAGS = -shared
 
-test:
-	gcc test/test.c -o oct_test.out -Lbin/ -loctree
+win32: $(obj)
+	$(CC) $(CFLAGS) -o bin/liboctree.dll $^ $(LDFLAGS)
 
-.PHONY: default test testno
+.PHONY: clean
+clean:
+	rm -f $(obj) win32

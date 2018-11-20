@@ -7,6 +7,11 @@
 int
 main()
 {
+    size_t idx = 5;
+    assert(hash_func(&idx) == 5);
+    size_t idx2 = 5;
+    assert(equals_func(&idx, &idx2) == true);
+    
     float* octree_position = malloc(3 * sizeof *octree_position);
     octree_position[0] = 100;
     octree_position[1] = 101;
@@ -26,13 +31,18 @@ main()
             positions[i][j] = ++count;
         }
     }
+    
+    oct_octree_build(octree, positions, r);
 
-    oct_visit_all(octree, octree->root_node);
-
-    auto iterator = unordered_map_iterator_alloc(octree->nodes);
-    while (unordered_map_iterator_next(iterator)) {
-        printf(iterator->next_entry);
+    unordered_map_iterator* iterator = unordered_map_iterator_alloc(octree->nodes);
+    while (unordered_map_iterator_has_next(iterator) > 0) {
+        void* key_pointer; 
+        void* value_pointer;
+        unordered_map_iterator_next(iterator, &key_pointer, &value_pointer);
+        printf("%I64u\n", *(size_t*)key_pointer);
+        printf("%u\n", ((OctreeBaseNode*)value_pointer)->type);
     }
+
     /* oct_octree_build(octree, positions, r); */
 
     /* oct_node_init_inner(); */

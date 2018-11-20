@@ -7,13 +7,13 @@
 size_t
 hash_func(void* key)
 {
-    return (size_t)key;
+    return *(size_t*)key;
 }
 
 bool
 equals_func(void* key1, void* key2)
 {
-    return (size_t)key1 == (size_t)key2;
+    return (*(size_t*)key1) == (*(size_t*)key2);
 }
 
 OctreeContainer*
@@ -75,7 +75,7 @@ oct_node_init_inner(OctreeContainer* octree, uint64_t location_code)
     node->base.type = INNER_NODE;
     node->child_exists = 0b00;
 
-    unordered_map_put(octree->nodes, &location_code, node);
+    unordered_map_put(octree->nodes, &node->base.location_code, node);
     octree->inner_count++;
 
     // If we just removed the root node set it to the new inner node
@@ -101,11 +101,11 @@ oct_node_init_leaf(OctreeContainer* octree, uint64_t parent_location,
     node->base.type = LEAF_NODE;
     node->object_index = object_index;
 
-    unordered_map_put(octree->nodes, &new_location, node);
+    unordered_map_put(octree->nodes, &node->base.location_code, node);
     octree->leaf_count++;
 
     if (parent_location) {
-        OctreeInnerNode* parent_node = oct_node_lookup(octree, parent_location);
+        OctreeInnerNode* parent_node = (OctreeInnerNode*)oct_node_lookup(octree, parent_location);
         parent_node->child_exists |= (1u << child_location);
     }
 
@@ -167,13 +167,13 @@ oct_node_split_leaf_node(OctreeContainer* octree, OctreeLeafNode* node)
     unordered_map_remove(octree->nodes, &location_code);
     octree->leaf_count--;
 
-    void* inner_node = oct_node_init_inner(octree, location_code);
+    OctreeInnerNode* inner_node = oct_node_init_inner(octree, location_code);
     if (node == NULL) {
         return NULL;
     }
 
     OctreeLeafNode* new_child = oct_find_leaf_node(
-        octree, inner_node, octree->object_positions[object_index]);
+        octree, (OctreeBaseNode*)inner_node, octree->object_positions[object_index]);
     new_child->object_index = object_index;
 
     return new_child;
@@ -232,14 +232,14 @@ oct_node_get_tree_depth(OctreeContainer* octree, const OctreeBaseNode* node)
 #endif
 }
 
-void*
+OctreeBaseNode*
 oct_node_get_parent(OctreeContainer* octree, OctreeBaseNode* node)
 {
     uint64_t location_code_parent = node->location_code >> 3;
     return oct_node_lookup(octree, location_code_parent);
 }
 
-void*
+OctreeBaseNode*
 oct_node_get_child(OctreeContainer* octree, uint64_t location_code,
                    uint8_t child_location)
 {
@@ -247,7 +247,7 @@ oct_node_get_child(OctreeContainer* octree, uint64_t location_code,
     return oct_node_lookup(octree, child_location_code);
 }
 
-void*
+OctreeBaseNode*
 oct_node_lookup(OctreeContainer* octree, uint64_t location_code)
 {
     return unordered_map_get(octree->nodes, &location_code);
@@ -260,7 +260,7 @@ oct_visit_all(OctreeContainer* octree, OctreeBaseNode* node)
     for (int i = 0; i < 8; i++) {
         if (node->type == INNER_NODE) {
             if (((OctreeInnerNode*)node)->child_exists & (1 << i)) {
-                void* child =
+                OctreeBaseNode* child =
                     oct_node_get_child(octree, node->location_code, i);
                 oct_visit_all(octree, child);
             }
