@@ -1,8 +1,6 @@
 #include "octree.h"
 
-#include <assert.h>
 #include <limits.h>
-#include <stdio.h>
 
 size_t
 hash_func(void* key)
@@ -67,7 +65,7 @@ oct_node_init_inner(OctreeContainer* octree, uint64_t location_code)
 {
     OctreeInnerNode* node = malloc(sizeof *node);
     if (node == NULL) {
-        printf("Error creating node, malloc failed");
+        /* printf("Error creating node, malloc failed"); */
         return NULL;
     }
 
@@ -92,7 +90,7 @@ oct_node_init_leaf(OctreeContainer* octree, uint64_t parent_location,
 {
     OctreeLeafNode* node = malloc(sizeof *node);
     if (node == NULL) {
-        printf("Error creating node, malloc failed");
+        /* printf("Error creating node, malloc failed"); */
         return NULL;
     }
 
@@ -105,7 +103,8 @@ oct_node_init_leaf(OctreeContainer* octree, uint64_t parent_location,
     octree->leaf_count++;
 
     if (parent_location) {
-        OctreeInnerNode* parent_node = (OctreeInnerNode*)oct_node_lookup(octree, parent_location);
+        OctreeInnerNode* parent_node =
+            (OctreeInnerNode*)oct_node_lookup(octree, parent_location);
         parent_node->child_exists |= (1u << child_location);
     }
 
@@ -152,8 +151,8 @@ oct_find_leaf_node(OctreeContainer* octree, OctreeBaseNode* node,
 
             break;
         }
-        default:
-            printf("Error, root node did not have a correct type.");
+            /* default: */
+            /* printf("Error, root node did not have a correct type."); */
     }
 
     return NULL;
@@ -172,8 +171,9 @@ oct_node_split_leaf_node(OctreeContainer* octree, OctreeLeafNode* node)
         return NULL;
     }
 
-    OctreeLeafNode* new_child = oct_find_leaf_node(
-        octree, (OctreeBaseNode*)inner_node, octree->object_positions[object_index]);
+    OctreeLeafNode* new_child =
+        oct_find_leaf_node(octree, (OctreeBaseNode*)inner_node,
+                           octree->object_positions[object_index]);
     new_child->object_index = object_index;
 
     return new_child;
@@ -184,7 +184,7 @@ oct_node_get_position(OctreeContainer* octree, OctreeBaseNode* node)
 {
     float* position = malloc(3 * sizeof *position);
     if (position == NULL) {
-        printf("Error creating temporary position, malloc failed");
+        /* printf("Error creating temporary position, malloc failed"); */
         return NULL;
     }
 
@@ -214,9 +214,6 @@ oct_node_get_position(OctreeContainer* octree, OctreeBaseNode* node)
 size_t
 oct_node_get_tree_depth(OctreeContainer* octree, const OctreeBaseNode* node)
 {
-    // Quick checkk that the node is not null
-    assert(node->location_code);
-
 #if defined(__GNUC__)
     return (63 - __builtin_clzll(node->location_code)) / 3;
 #elif defined(_MSC_VER)
@@ -265,7 +262,7 @@ oct_visit_all(OctreeContainer* octree, OctreeBaseNode* node)
                 oct_visit_all(octree, child);
             }
         } else {
-            printf("%p\n", node);
+            /* printf("%p\n", node); */
         }
     }
 }

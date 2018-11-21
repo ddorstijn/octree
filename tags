@@ -4,18 +4,25 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+CC	Makefile	/^CC = gcc$/;"	m
+CC	test/Makefile	/^CC = gcc$/;"	m
+CFLAGS	Makefile	/^CFLAGS = -shared -fPIC$/;"	m
+CFLAGS	test/Makefile	/^CFLAGS = $/;"	m
 INNER_NODE	src/octree.h	13;"	d
+LDFLAGS	Makefile	/^LDFLAGS =$/;"	m
+LDFLAGS	test/Makefile	/^LDFLAGS = -L..\/bin -loctree -Wl,-rpath '-Wl,$$ORIGIN'$/;"	m
 LEAF_NODE	src/octree.h	14;"	d
 MINIMUM_INITIAL_CAPACITY	src/unordered_map.c	/^static const size_t MINIMUM_INITIAL_CAPACITY = 16;$/;"	v	file:
 MINIMUM_LOAD_FACTOR	src/unordered_map.c	/^static const float  MINIMUM_LOAD_FACTOR = 0.2f;$/;"	v	file:
 OCTREE_API	src/octree.h	5;"	d
 OCTREE_API	src/octree.h	7;"	d
 OCTREE_H	src/octree.h	2;"	d
+OS	Makefile	/^OS := $(shell uname)$/;"	m
+OS	test/Makefile	/^OS := $(shell uname)$/;"	m
 OctreeBaseNode	src/octree.h	/^    } OctreeBaseNode;$/;"	t	typeref:struct:_OctreeBaseNode
 OctreeContainer	src/octree.h	/^    } OctreeContainer;$/;"	t	typeref:struct:_OctreeContainer
 OctreeInnerNode	src/octree.h	/^    } OctreeInnerNode;$/;"	t	typeref:struct:_OctreeInnerNode
 OctreeLeafNode	src/octree.h	/^    } OctreeLeafNode;$/;"	t	typeref:struct:_OctreeLeafNode
-SOURCES	Makefile	/^SOURCES = src\/octree.c src\/unordered_map.c$/;"	m
 UNORDERED_MAP_H	src/unordered_map.h	2;"	d
 _OctreeBaseNode	src/octree.h	/^    typedef struct _OctreeBaseNode$/;"	s
 _OctreeContainer	src/octree.h	/^    typedef struct _OctreeContainer$/;"	s
@@ -41,6 +48,7 @@ leaf_count	src/octree.h	/^        size_t leaf_count;$/;"	m	struct:_OctreeContain
 load_factor	src/unordered_map.c	/^    float                 load_factor;$/;"	m	struct:unordered_map	file:
 location_code	src/octree.h	/^        uint64_t location_code;$/;"	m	struct:_OctreeBaseNode
 main	src/main.c	/^main()$/;"	f
+main	test/main.c	/^main()$/;"	f
 main	test/test.c	/^main()$/;"	f
 map	src/unordered_map.c	/^    unordered_map*       map;$/;"	m	struct:unordered_map_iterator	file:
 mask	src/unordered_map.c	/^    size_t                mask;$/;"	m	struct:unordered_map	file:
@@ -51,6 +59,8 @@ mod_count	src/unordered_map.c	/^    size_t                mod_count;$/;"	m	struc
 next	src/unordered_map.c	/^    struct unordered_map_entry* next;$/;"	m	struct:unordered_map_entry	typeref:struct:unordered_map_entry::unordered_map_entry	file:
 next_entry	src/unordered_map.c	/^    unordered_map_entry* next_entry;$/;"	m	struct:unordered_map_iterator	file:
 nodes	src/octree.h	/^        unordered_map* nodes;$/;"	m	struct:_OctreeContainer
+obj	Makefile	/^obj = $(src:.c=.o)$/;"	m
+obj	test/Makefile	/^obj = $(src:.c=.o)$/;"	m
 object_index	src/octree.h	/^        uint64_t object_index;$/;"	m	struct:_OctreeLeafNode
 object_positions	src/octree.h	/^        float** object_positions;$/;"	m	struct:_OctreeContainer
 oct_find_leaf_node	src/octree.c	/^oct_find_leaf_node(OctreeContainer* octree, OctreeBaseNode* node,$/;"	f
@@ -71,6 +81,8 @@ prev	src/unordered_map.c	/^    struct unordered_map_entry* prev;$/;"	m	struct:un
 root_node	src/octree.h	/^        void* root_node;$/;"	m	struct:_OctreeContainer
 size	src/octree.h	/^        size_t size;$/;"	m	struct:_OctreeContainer
 size	src/unordered_map.c	/^    size_t                size;$/;"	m	struct:unordered_map	file:
+src	Makefile	/^src = $(wildcard src\/*.c)$/;"	m
+src	test/Makefile	/^src = main.c$/;"	m
 table	src/unordered_map.c	/^    unordered_map_entry** table;$/;"	m	struct:unordered_map	file:
 table_capacity	src/unordered_map.c	/^    size_t                table_capacity;$/;"	m	struct:unordered_map	file:
 tail	src/unordered_map.c	/^    unordered_map_entry*  tail;$/;"	m	struct:unordered_map	file:
