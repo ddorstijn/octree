@@ -19,7 +19,9 @@ main()
     OctreeContainer* octree = oct_octree_init(octree_position, 100);
     assert(octree->position[0] == octree_position[0]);
 
-    int r = 5, c = 3, i, j, count;
+    const int r = 5;
+    const int c = 3;
+    int i, j, count;
 
     float* positions[r];
     for (i = 0; i < r; i++)
