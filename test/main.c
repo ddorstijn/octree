@@ -4,6 +4,9 @@
 
 #include "../src/octree.h"
 
+#define ROWS 5
+#define COLUMNS 3
+
 int
 main()
 {
@@ -16,28 +19,31 @@ main()
     octree_position[0] = 100;
     octree_position[1] = 101;
     octree_position[2] = 102;
-    OctreeContainer* octree = oct_octree_init(octree_position, 100);
+    int octree_size = 100;
+    OctreeContainer* octree = oct_octree_init(octree_position, octree_size);
     assert(octree->position[0] == octree_position[0]);
+    assert(octree->position[1] == octree_position[1]);
+    assert(octree->position[2] == octree_position[2]);
+    assert(octree->size == octree_size);
 
-    const int r = 5;
-    const int c = 3;
     int i, j, count;
 
-    float* positions[r];
-    for (i = 0; i < r; i++)
-        positions[i] = malloc(c * sizeof(float));
+    float* positions[ROWS];
+    for (i = 0; i < ROWS; i++)
+        positions[i] = malloc(COLUMNS * sizeof(float));
 
     count = 0;
-    for (i = 0; i < r; i++) {
-        for (j = 0; j < c; j++) {
+    for (i = 0; i < ROWS; i++) {
+        for (j = 0; j < COLUMNS; j++) {
             positions[i][j] = ++count;
         }
     }
 
-    oct_octree_build(octree, positions, r);
+    oct_octree_build(octree, positions, ROWS);
 
     unordered_map_iterator* iterator =
         unordered_map_iterator_alloc(octree->nodes);
+    
     while (unordered_map_iterator_has_next(iterator) > 0) {
         void* key_pointer;
         void* value_pointer;
@@ -57,5 +63,7 @@ main()
     /* oct_find_leaf_node(); */
 
     oct_octree_free(octree);
+    free(positions);
+
     return 0;
 }
