@@ -32,7 +32,7 @@ extern "C"
      * @brief Thr basic container for the octree which holds the metadata.
      *
      */
-    typedef struct _OctreeContainer
+    typedef struct _Octree
     {
         Position position;
         size_t size;
@@ -41,15 +41,15 @@ extern "C"
         void* root_node;
         Position* object_positions;
         unordered_map* nodes;
-    } OctreeContainer;
+    } Octree;
 
     /**
      * @brief The base node where the inner node and leave node derive from.
-     *        This holds the type of node and its location.
+     * This holds the type of node and its location.
      *
-     *        Thr location code works by taking the parent and adding the index
+     * The location code works by taking the parent and adding the index
      * from the current node. This way you get a long mask of the path that
-     * hasss been taken to get to this node. The index works as the follows:
+     * has been taken to get to this node. The index works as the follows:
      *        front:       back:
      *        --- ---     --- ---
      *       | 2 | 3 |   | 6 | 7 |
@@ -57,22 +57,22 @@ extern "C"
      *       | 0 | 1 |   | 4 | 5 |
      *        --- ---     --- ---
      */
-    typedef struct _OctreeBaseNode
+    typedef struct _BaseNode
     {
         uint64_t location_code;
         uint8_t type;
-    } OctreeBaseNode;
+    } BaseNode;
 
     /**
      * @brief The leaf node. This holds the object index of the object.
      *        The object index can be used by the usser to find the right
      *        object in hissss array.
      */
-    typedef struct _OctreeLeafNode
+    typedef struct _LeafNode
     {
-        OctreeBaseNode base;
+        BaseNode base;
         uint64_t object_index;
-    } OctreeLeafNode;
+    } LeafNode;
 
     /**
      * @brief The inner node is a node that doesn't contain an object but
@@ -80,11 +80,11 @@ extern "C"
      * bit is set for the correlating child. This can be used t quickly check if
      * child nodess already exist.
      */
-    typedef struct _OctreeInnerNode
+    typedef struct _BranchNode
     {
-        OctreeBaseNode base;
+        BaseNode base;
         uint8_t child_exists;
-    } OctreeInnerNode;
+    } BranchNode;
 
     size_t hash_func(void* key);
     bool equals_func(void* key1, void* key2);
@@ -96,7 +96,7 @@ extern "C"
      * @param size The length from the center to one of the sides of the octree
      * @return OctreeContainer* octree This contains metadata for the octree
      */
-    OCTREE_API OctreeContainer* oct_octree_init(Position position, size_t size);
+    OCTREE_API Octree* oct_octree_init(Position position, size_t size);
 
     /**
      * @brief Dessstroy the octree and deallocate all the nodes.
@@ -104,7 +104,7 @@ extern "C"
      *
      * @param octree The octree that has to be freed
      */
-    OCTREE_API void oct_octree_free(OctreeContainer* octree);
+    OCTREE_API void oct_octree_free(Octree* octree);
 
     /**
      * @brief Split the octree until all the objects are in their own node.
@@ -113,7 +113,7 @@ extern "C"
      * @param object_positions An array of positions (x, y, z) float
      * @param object_count Number of objects
      */
-    OCTREE_API void oct_octree_build(OctreeContainer* octree,
+    OCTREE_API void oct_octree_build(Octree* octree,
                                      Position* object_positions,
                                      size_t object_count);
 
@@ -123,10 +123,10 @@ extern "C"
      * @param octree
      * @param location_code Code that is used as a hash to store the node. This
      * also shows what path is taken through the octree to get there.
-     * @return OctreeInnerNode* new_node The newly allocated note
+     * @return OctreeBranchNode* new_node The newly allocated note
      */
-    OCTREE_API OctreeInnerNode* oct_node_init_inner(OctreeContainer* octree,
-                                                    uint64_t location_code);
+    OCTREE_API BranchNode* oct_branch_node_init(Octree* octree,
+                                                uint64_t location_code);
 
     /**
      * @brief Remove inner node
@@ -134,7 +134,7 @@ extern "C"
      * @param octree The octree the node is part of
      * @param location_code The location_code of the node to be removed 
      */
-    OCTREE_API void oct_free_inner(OctreeContainer* octree, uint64_t location_code);
+    OCTREE_API void oct_branch_node_free(Octree* octree, uint64_t location_code);
 
     /**
      * @brief Init a leaf node.
@@ -143,12 +143,12 @@ extern "C"
      * @param parent_location
      * @param child_location
      * @param object_index
-     * @return OctreeLeafNode* new_node The newly allocated note
+     * @return LeafNode* new_node The newly allocated note
      */
-    OCTREE_API OctreeLeafNode* oct_node_init_leaf(OctreeContainer* octree,
-                                                  uint64_t parent_location,
-                                                  uint8_t child_location,
-                                                  uint64_t object_index);
+    OCTREE_API LeafNode* oct_leaf_node_init(Octree* octree,
+                                            uint64_t parent_location,
+                                            uint8_t child_location,
+                                            uint64_t object_index);
 
     /**
      * @brief Remove leaf node
@@ -156,7 +156,7 @@ extern "C"
      * @param octree The octree the node is part of
      * @param location_code The location_code of the node to be removed 
      */
-    OCTREE_API void oct_free_leaf(OctreeContainer* octree, uint64_t location_code);
+    OCTREE_API void oct_leaf_node_free(Octree* octree, uint64_t location_code);
 
     /**
      * @brief Find the first leaf node that could potentially hold thr object.
@@ -167,8 +167,8 @@ extern "C"
      * @param object_position
      * @return OctreeLeafNode* leaf_node best-suited leaf node to hold object
      */
-    OCTREE_API OctreeLeafNode* oct_find_leaf_node(OctreeContainer* octree,
-                                                  OctreeBaseNode* node,
+    OCTREE_API LeafNode* oct_leaf_node_find(Octree* octree,
+                                                  BaseNode* node,
                                                   Position object_position);
 
     /**
@@ -177,11 +177,11 @@ extern "C"
      *
      * @param octree
      * @param node
-     * @return OctreeleafNode* child_node The new child node that holds the
+     * @return LeafNode* child_node The new child node that holds the
      * object index
      */
-    OCTREE_API OctreeLeafNode* oct_node_split_leaf_node(OctreeContainer* octree,
-                                                        OctreeLeafNode* node);
+    OCTREE_API LeafNode* oct_leaf_node_split(Octree* octree,
+                                                  LeafNode* node);
 
     /**
      * @brief Calculate the position of the node.
@@ -190,8 +190,8 @@ extern "C"
      * @param node
      * @return Position positiom Vector 3 of position (x, y, z)
      */
-    OCTREE_API Position oct_node_get_position(OctreeContainer* octree,
-                                              OctreeBaseNode* node);
+    OCTREE_API Position oct_node_get_position(Octree* octree,
+                                              BaseNode* node);
 
     /**
      * @brief Get the depth of a node.
@@ -200,18 +200,18 @@ extern "C"
      * @param node
      * @return size_t tree_depth
      */
-    OCTREE_API size_t oct_node_get_tree_depth(OctreeContainer* octree,
-                                              const OctreeBaseNode* node);
+    OCTREE_API size_t oct_node_get_tree_depth(Octree* octree,
+                                              const BaseNode* node);
 
     /**
      * @brief Get the parent node from the node passed to the function
      *
      * @param octree
      * @param node
-     * @return OctreeBaseNode* parent_node
+     * @return BaseNode* parent_node
      */
-    OCTREE_API OctreeBaseNode* oct_node_get_parent(OctreeContainer* octree,
-                                                   OctreeBaseNode* node);
+    OCTREE_API BaseNode* oct_node_get_parent(Octree* octree,
+                                             BaseNode* node);
 
     /**
      * @brief Get a child node based of the location code of the parent and the
@@ -221,11 +221,11 @@ extern "C"
      * @param octree
      * @param location_code
      * @param child_location
-     * @return OctreeBaseNode* child_node
+     * @return BaseNode* child_node
      */
-    OCTREE_API OctreeBaseNode* oct_node_get_child(OctreeContainer* octree,
-                                                  uint64_t location_code,
-                                                  uint8_t child_location);
+    OCTREE_API BaseNode* oct_node_get_child(Octree* octree,
+                                            uint64_t location_code,
+                                            uint8_t child_location);
 
     /**
      * @brief Find a node based on it's location code
@@ -234,8 +234,8 @@ extern "C"
      * @param location_code
      * @return OctreeBaseNode* node Note: NULL if no node hass been found@
      */
-    OCTREE_API OctreeBaseNode* oct_node_lookup(OctreeContainer* octree,
-                                               uint64_t location_code);
+    OCTREE_API BaseNode* oct_node_lookup(Octree* octree,
+                                         uint64_t location_code);
 
     /**
      * @brief Get the ssize of the boundss of the octree
@@ -243,7 +243,7 @@ extern "C"
      * @param octree 
      * @return size_t octree_size 
      */
-    OCTREE_API size_t oct_octree_get_size(OctreeContainer* octree);
+    OCTREE_API size_t oct_octree_get_size(Octree* octree);
 
     /**
      * @brief Get the amount of leaf nodes in the octree
@@ -251,7 +251,7 @@ extern "C"
      * @param octree 
      * @return size_t leaf_count  
      */
-    OCTREE_API size_t oct_octree_get_leaf_count(OctreeContainer* octree);
+    OCTREE_API size_t oct_octree_get_leaf_count(Octree* octree);
 
     /**
      * @brief Get the amount of inner/branch nodes in the octree
@@ -259,7 +259,7 @@ extern "C"
      * @param octree 
      * @return size_t inner_count 
      */
-    OCTREE_API size_t oct_octree_get_inner_count(OctreeContainer* octree);
+    OCTREE_API size_t oct_octree_get_inner_count(Octree* octree);
 
     /**
      * @brief visit all octree nodes
@@ -267,8 +267,8 @@ extern "C"
      * @param octree
      * @param node
      */
-    OCTREE_API void oct_visit_all(OctreeContainer* octree,
-                                  OctreeBaseNode* node);
+    OCTREE_API void oct_visit_all(Octree* octree,
+                                  BaseNode* node);
 
 #ifdef __cplusplus
 }

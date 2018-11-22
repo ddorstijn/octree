@@ -5,7 +5,6 @@
 #include "../src/octree.h"
 
 #define ROWS 5
-#define COLUMNS 3
 
 int
 main()
@@ -15,28 +14,16 @@ main()
     size_t idx2 = 5;
     assert(equals_func(&idx, &idx2) == true);
 
-    float* octree_position = malloc(3 * sizeof *octree_position);
-    octree_position[0] = 100;
-    octree_position[1] = 101;
-    octree_position[2] = 102;
     int octree_size = 100;
-    OctreeContainer* octree = oct_octree_init(octree_position, octree_size);
-    assert(octree->position[0] == octree_position[0]);
-    assert(octree->position[1] == octree_position[1]);
-    assert(octree->position[2] == octree_position[2]);
-    assert(octree->size == octree_size);
-
-    int i, j, count;
-
-    float* positions[ROWS];
-    for (i = 0; i < ROWS; i++)
-        positions[i] = malloc(COLUMNS * sizeof(float));
-
-    count = 0;
-    for (i = 0; i < ROWS; i++) {
-        for (j = 0; j < COLUMNS; j++) {
-            positions[i][j] = ++count;
-        }
+    Position octree_position = {100, 101, 102};
+    Octree* octree = oct_octree_init(octree_position, octree_size);
+    
+    int count = 0;
+    Position positions[ROWS];
+    for (int i = 0; i < ROWS; i++) {
+        positions[i].x = ++count;
+        positions[i].y = ++count;
+        positions[i].z = ++count;
     }
 
     oct_octree_build(octree, positions, ROWS);
@@ -48,22 +35,10 @@ main()
         void* key_pointer;
         void* value_pointer;
         unordered_map_iterator_next(iterator, &key_pointer, &value_pointer);
-        printf("%I64u\n", *(size_t*)key_pointer);
-        printf("%u\n", ((OctreeBaseNode*)value_pointer)->type);
+        printf("%u\n", ((BaseNode*)value_pointer)->type);
     }
 
-    /* oct_octree_build(octree, positions, r); */
-
-    /* oct_node_init_inner(); */
-
-    /* oct_node_init_leaf(); */
-
-    /* oct_node_split_leaf_node(); */
-
-    /* oct_find_leaf_node(); */
-
     oct_octree_free(octree);
-    free(positions);
 
     return 0;
 }
