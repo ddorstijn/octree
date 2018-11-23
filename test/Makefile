@@ -2,14 +2,16 @@ CC = gcc
 OS := $(shell uname)
 APP_NAME := test
 
-src = main.c
+src = src/main.c
 obj = $(src:.c=.o)
 
-LDFLAGS = -L../bin/debug -loctree -Wl,-rpath '-Wl,$$ORIGIN'
+BUILD_DIR := bin/
+
 CFLAGS = -g
+LDFLAGS = -L../bin/debug -loctree -Wl,-rpath '-Wl,$$ORIGIN'
 
 default: $(obj)
-	$(CC) $(CFLAGS) -o $(APP_NAME) $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)$(APP_NAME) $^ $(LDFLAGS)
 
 clean:
 	rm -f $(obj) default

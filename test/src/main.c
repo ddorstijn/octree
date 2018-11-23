@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "../src/octree.h"
+#include "../../src/octree.h"
 
 #define ROWS 5
 
@@ -15,7 +15,7 @@ main()
     assert(equals_func(&idx, &idx2) == true);
 
     int octree_size = 100;
-    Position octree_position = {100, 101, 102};
+    Position octree_position = {30, 30, 30};
     Octree* octree = oct_octree_init(octree_position, octree_size);
     
     int count = 0;
