@@ -1,22 +1,17 @@
 CC = gcc
 OS := $(shell uname)
+APP_NAME := test
 
 src = main.c
 obj = $(src:.c=.o)
 
-LDFLAGS = -L../bin -loctree -Wl,-rpath '-Wl,$$ORIGIN'
-CFLAGS = 
+LDFLAGS = -L../bin/debug -loctree -Wl,-rpath '-Wl,$$ORIGIN'
+CFLAGS = -g
 
-ifeq ($(OS), Linux)
-default: linux
-else
-default: win32
-endif
+default: $(obj)
+	$(CC) $(CFLAGS) -o $(APP_NAME) $^ $(LDFLAGS)
 
-win32: $(obj)
-	$(CC) $(CFLAGS) -o main $^ $(LDFLAGS)
+clean:
+	rm -f $(obj) default
 
-linux: $(obj)
-	$(CC) $(CFLAGS) -o main $^ $(LDFLAGS)
-
-.PHONY: default win32 linux clean
+.PHONY: default clean

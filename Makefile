@@ -1,5 +1,6 @@
 CC = gcc
 OS := $(shell uname)
+APP_NAME := octree
 
 src = $(wildcard src/*.c)
 obj = $(src:.c=.o)
@@ -7,21 +8,25 @@ obj = $(src:.c=.o)
 LDFLAGS =
 CFLAGS = -shared
 
-ifeq ($(OS), Linux)
-CFLAGS += -fPIC
-
-default: linux
+ifeq ("$(DEBUG)","1")
+CFLAGS += -g
+BUILD_DIR := bin/debug/
 else
-default: win32
+BUILD_DIR := bin/release/
 endif
 
-win32: $(obj)
-	$(CC) $(CFLAGS) -DEXPORT_SHARED -o bin/octree.dll $^ $(LDFLAGS)
-	
-linux: $(obj)
-	$(CC) $(CFLAGS) -o bin/liboctree.so $^ $(LDFLAGS)
+ifeq ($(OS), Linux)
+CFLAGS += -fPIC
+SUFFIX := .so
+else
+CFLAGS += -DEXPORT_SHARED
+SUFFIX := .dll
+endif
+
+default: $(obj)
+	$(CC) $(CFLAGS) -o $(BUILD_DIR)lib$(APP_NAME)$(SUFFIX) $^ $(LDFLAGS)
 
 clean:
 	rm -f $(obj) win32
 
-.PHONY: default win32 clean
+.PHONY: default clean
